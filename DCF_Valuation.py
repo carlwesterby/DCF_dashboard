@@ -21,7 +21,6 @@ def date2qtr(x):
 
 def date2year(x):
     return x.year
-
 @st.cache
 def DCF(earnings, discount_rate, growth_rate1, growth_years ,growth_rate2, total_years):
     value=0
@@ -144,13 +143,7 @@ TotalYears =  cols[0].text_input("Years of Growth (0 assumes Terminal Value from
 headings=annualDF.columns
 item1 = cols[1].selectbox('Plot1:',headings, index=21)
 item2 = cols[1].selectbox('Plot2:',headings, index=1)
-
-#displayDF=filtered_data.sort_values(by=['QTR'], ascending=False, kind='mergesort')
-#filtered_data=filtered_data.sort_values(by=['Year'], ascending=False, kind='mergesort')
-
 #__________________________________Grab the data for plotting________________________________________________________________#
-
-
 plot2DF=pd.DataFrame(annualDF[item1])
 plot2DF['Year']=annualDF['Year'].values
 if(item2 !='Year'):
@@ -170,7 +163,6 @@ current_price=current_price[0]
 current_price_format = "{:.2f}".format(current_price)
 valuation_format = "{:.2f}".format(valuation)
 cols[1].subheader("Valuation: "+str(valuation_format)+ "\tCurrent Price: "+str(current_price_format))
-
 MS_format=(valuation/current_price-1)*100
 MS_format = "{:.2f}".format(MS_format)
 cols[1].subheader("Margin of Safety: "+str(MS_format)+"%")
@@ -194,7 +186,6 @@ LatestDF=annualDF.iloc[-1:]
 LatestDF["EPS 3Y Growth"]=eps3Growth
 LatestDF["EPS 5Y Growth"]=eps5Growth
 LatestDF=LatestDF[["EPS 3Y Growth", "EPS 5Y Growth", 'Faustmann Ratio', 'ROIC', 'ROE', 'PE', "PB"]]
-
 LatestDF=LatestDF.style.format({"EPS 3Y Growth":'{:.2%}'})
 LatestDF=LatestDF.format({"EPS 5Y Growth":'{:.2%}'})
 LatestDF=LatestDF.format({"Faustmann Ratio":'{:.2f}'})
@@ -202,5 +193,4 @@ LatestDF=LatestDF.format({"ROIC":'{:.2%}'})
 LatestDF=LatestDF.format({"ROE":'{:.2%}'})
 LatestDF=LatestDF.format({"PE":'{:.2f}'})
 LatestDF=LatestDF.format({"PB":'{:.2f}'})
-
 cols[1].dataframe(data=LatestDF, height=100)
