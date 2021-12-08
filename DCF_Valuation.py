@@ -21,6 +21,7 @@ def date2qtr(x):
 
 def date2year(x):
     return x.year
+
 @st.cache
 def DCF(earnings, discount_rate, growth_rate1, growth_years ,growth_rate2, total_years):
     value=0
@@ -50,19 +51,14 @@ def DCF(earnings, discount_rate, growth_rate1, growth_years ,growth_rate2, total
 #force the layout to be wide
 st.set_page_config(layout="wide")
 #__________________________________Load the Data set, filter on ticker________________________________________________________________#
-companyDF=pd.read_csv(r'C:\Users\cwesterb\Stock Data 11-22-2021\complete_data.csv')
-#companyDF=pd.read_csv(r'complete_financial_information_2011.csv')
+companyDF=pd.read_csv(r'C:\YOUR_FUNDAMENTAL_DATA_HERE.csv')
 company_list=companyDF.drop_duplicates(subset='Ticker')
 
 #grab the complete list oc companies
 company_list=company_list['Ticker'].values
 
-#title for the Applicaiton
-#st.title('Discounted Cash Flow Valuation')
 #2 Columns
 cols = st.columns(2)
-#slect box for picking the company
-sim_date = cols[0].date_input('"Current Date" For Simulation')
 #slect box for picking the company
 company_ticker = cols[0].selectbox('Ticker:',company_list)
 #grab the data for the select company
@@ -77,10 +73,6 @@ DCF_columns=["Ticker","Year","QTR","Report Date", "Shares (Diluted)", "Revenue",
 
 #filter to the columns we need
 financialDF=financialDF[DCF_columns]
-
-#remove data after the simulation date
-financialDF["Report Date"] = pd.to_datetime(financialDF["Report Date"], format="%m/%d/%Y")
-financialDF=financialDF[financialDF["Report Date"] <= pd.to_datetime(sim_date, format="%Y/%m/%d")]
 #create the annual version of the data frame
 annualDF=pd.DataFrame()
 #these are the columns where we want the most recent value
@@ -143,7 +135,9 @@ TotalYears =  cols[0].text_input("Years of Growth (0 assumes Terminal Value from
 headings=annualDF.columns
 item1 = cols[1].selectbox('Plot1:',headings, index=21)
 item2 = cols[1].selectbox('Plot2:',headings, index=1)
+
 #__________________________________Grab the data for plotting________________________________________________________________#
+
 plot2DF=pd.DataFrame(annualDF[item1])
 plot2DF['Year']=annualDF['Year'].values
 if(item2 !='Year'):
@@ -156,13 +150,13 @@ cols[1].plotly_chart(fig2, use_container_width=True)
 #__________________________________Data below the plot________________________________________________________________#
 #The Discounted Cash Flow Valuation
 valuation=DCF(float(Earnings), float(Drate), float(Growth1), int(GrowthYears), float(Growth2), int(TotalYears))
-current_price=yf.Ticker(company_ticker).history(start=sim_date)
-#cols[1].text(current_price)
+current_price=yf.Ticker(company_ticker).history(period='1d')
 current_price=current_price["Close"].values
 current_price=current_price[0]
 current_price_format = "{:.2f}".format(current_price)
 valuation_format = "{:.2f}".format(valuation)
 cols[1].subheader("Valuation: "+str(valuation_format)+ "\tCurrent Price: "+str(current_price_format))
+
 MS_format=(valuation/current_price-1)*100
 MS_format = "{:.2f}".format(MS_format)
 cols[1].subheader("Margin of Safety: "+str(MS_format)+"%")
